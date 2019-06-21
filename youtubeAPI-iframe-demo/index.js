@@ -6,7 +6,6 @@ const port = process.env.PORT || 3000;
 
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
-    res.end();
 });
 
 http.listen(port, function() {
@@ -15,4 +14,12 @@ http.listen(port, function() {
 
 io.sockets.on('connection', function(socket) {
     console.log('A new client connected');
+
+    socket.broadcast.on('setPlay', function(data){
+        io.emit('setPlay', data);
+    });
+
+    socket.broadcast.on('setPause', function(data){
+        io.emit('setPause', data);
+    });
 });

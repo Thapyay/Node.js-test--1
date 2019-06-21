@@ -2,15 +2,67 @@
 <html>
   <head>
       <link type="text/css" href="./css/index.css">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
       <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
       <script src="/socket.io/socket.io.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body{ text-align: center; }
+        button{ width: 100px; margin: 20px;}
+      </style>
   </head>
+
   <body>
+    <h4>This is the test of socekt.io broadcast of a youtube video</h4>
     <div id="player"></div>
+    <div>
+      <button type="button" class="btn btn-default" id="play"><span class="glyphicon glyphicon-play" /></button>
+      <button type="button" class="btn btn-default" id="pause"><span class="glyphicon glyphicon-pause" /></button>
+    </div>
 
     <script>    
-      
+      //Loading the socket.io
       var socket = io.connect();
+
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: 'M7lc1UVf-VE',
+          events: {
+            'onReady': onPlayerReady
+          }
+        });
+      }
+
+      function onPlayerReady(event) {
+        const btnPlay = document.getElementById('play');
+        btnPlay.addEventListener('click', function(e) {
+            socket.emit('setPlay', {id: event.target});
+        });
+        socket.on('setPlay', function(data){          
+          console.log('Client action : Play');
+          player.playVideo();
+        });
+
+        const btnPause = document.getElementById('pause');
+        btnPause.addEventListener('click', function(e) {
+            socket.emit('setPause', {id: event.target});
+        });
+        socket.on('setPause', function(data){
+          console.log('Client action : Pause');
+          player.pauseVideo();
+        });
+      }
     </script>
   </body>
 </html>
